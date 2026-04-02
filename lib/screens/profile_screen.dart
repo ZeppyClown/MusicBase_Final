@@ -1,28 +1,23 @@
 import 'dart:io';
 import 'package:path/path.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat_application/main.dart';
 import 'package:chat_application/models/user_model.dart';
-import 'package:chat_application/screens/auth_screen.dart';
-import 'package:chat_application/screens/in_app_browser.dart';
 import 'package:chat_application/services/firestore_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
-class profileScreen extends StatefulWidget {
+class ProfileScreen extends StatefulWidget {
   UserModel user;
-  profileScreen(this.user);
+  ProfileScreen(this.user);
 
   @override
-  State<profileScreen> createState() => profileScreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class profileScreenState extends State<profileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   var form = GlobalKey<FormState>();
   String? newUsername;
@@ -44,38 +39,45 @@ class profileScreenState extends State<profileScreen> {
     bool isValid = form.currentState!.validate();
     if (isValid) {
       form.currentState!.save();
-      if(profileTempImage == null){
-        
-        await firestore.collection('users').doc(widget.user.uid).update({
-          'role': student_or_teacher,
-        });
-      }else{
-        String? base64;
-      Reference ref =
-            FirebaseStorage.instance.ref().child(DateTime.now().toString() + '_' + basename(profileTempImage!.path));
-        UploadTask uploadTask = ref.putFile(profileTempImage!);
+      try {
+        if(profileTempImage == null){
+          await firestore.collection('users').doc(widget.user.uid).update({
+            'role': student_or_teacher,
+          });
+        }else{
+          String? base64;
+          Reference ref =
+              FirebaseStorage.instance.ref().child(DateTime.now().toString() + '_' + basename(profileTempImage!.path));
+          UploadTask uploadTask = ref.putFile(profileTempImage!);
 
-        var imageUrl = await (await uploadTask).ref.getDownloadURL();
-        setState(() {
-          base64 = imageUrl.toString();
-        });
-        await firestore.collection('users').doc(widget.user.uid).update({
-          'role': student_or_teacher,
-          'image' : base64,
-        });
+          var imageUrl = await (await uploadTask).ref.getDownloadURL();
+          setState(() {
+            base64 = imageUrl.toString();
+          });
+          await firestore.collection('users').doc(widget.user.uid).update({
+            'role': student_or_teacher,
+            'image' : base64,
+          });
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Role changed successfully'),
+          ));
+
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => MyApp()),
+            (Route<dynamic> route) => false,
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Something went wrong. Please try again.')),
+          );
+        }
       }
-      
-      
-
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Role changed successfully'),
-        ));
-        
-        Navigator.pushAndRemoveUntil(
-  			context,
-  			MaterialPageRoute(builder: (context) => MyApp()), // this mymainpage is your page to refresh
-  			(Route<dynamic> route) => false,
-		);
     }
   }
 

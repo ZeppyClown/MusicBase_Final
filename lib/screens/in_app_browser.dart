@@ -44,7 +44,7 @@ class _InAppBrowserState extends State<InAppBrowser> {
             height: 3,
             child: LinearProgressIndicator(
               value: _progress,
-              backgroundColor: Theme.of(context).accentColor.withOpacity(0.2),
+              backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
             ),
           ) : SizedBox()
         ],

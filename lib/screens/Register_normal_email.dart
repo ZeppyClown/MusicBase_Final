@@ -34,8 +34,7 @@ class _RegisterNormalEmailState extends State<RegisterNormalEmail> {
   String? textHolderPassword = "Password";
   String? textHolderCfmPassword = "Confirm Password";
   String? textHolderUsername = "Username";
-  String defaultPicture =
-      "https://firebasestorage.googleapis.com/v0/b/test-d9a30.appspot.com/o/2022-08-04%2011%3A58%3A29.006437_scaled_image_picker781721152304704427.png?alt=media&token=7d5bbe4a-fee7-41e6-97bf-ff4c2ecb3706";
+  String defaultPicture = "assets/images/default_avatar.png";
 
   saveForm(context, student_or_teacher_int) async {
     var student_or_teacher;
@@ -53,53 +52,70 @@ class _RegisterNormalEmailState extends State<RegisterNormalEmail> {
       form.currentState!.save();
 
       if (password == confirmPassword) {
-        checkerUsername = await fsService.checkUsernameUnique(username!);
-        checkerEmail = await fsService.checkUsernameUnique(email!);
+        try {
+          checkerUsername = await fsService.checkUsernameUnique(username!);
+          checkerEmail = await fsService.checkUsernameUnique(email!);
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Something went wrong. Please try again.')),
+            );
+          }
+          return;
+        }
         AuthService authService = AuthService();
         if (checkerUsername == true && checkerEmail == true) {
-          if (profileTempImage == null) {
-            return authService.register(email, password).then((user) async {
-              await firestore.collection('users').doc(user.user?.uid).set({
-                'email': email,
-                'image': defaultPicture,
-                'username': username,
-                'role': student_or_teacher,
-                'uid': user.user!.uid,
-                'date': DateTime.now(),
-                'emailType': "email"
+          try {
+            if (profileTempImage == null) {
+              return authService.register(email, password).then((user) async {
+                await firestore.collection('users').doc(user.user?.uid).set({
+                  'email': email,
+                  'image': defaultPicture,
+                  'username': username,
+                  'role': student_or_teacher,
+                  'uid': user.user!.uid,
+                  'date': DateTime.now(),
+                  'emailType': "email"
+                });
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyApp()),
+                    (route) => false);
               });
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => MyApp()),
-                  (route) => false);
-            });
-          } else {
-            String? base64;
-            Reference ref = FirebaseStorage.instance.ref().child(
-                DateTime.now().toString() +
-                    '_' +
-                    basename(profileTempImage!.path));
-            UploadTask uploadTask = ref.putFile(profileTempImage!);
+            } else {
+              String? base64;
+              Reference ref = FirebaseStorage.instance.ref().child(
+                  DateTime.now().toString() +
+                      '_' +
+                      basename(profileTempImage!.path));
+              UploadTask uploadTask = ref.putFile(profileTempImage!);
 
-            var imageUrl = await (await uploadTask).ref.getDownloadURL();
-            setState(() {
-              base64 = imageUrl.toString();
-            });
-            return authService.register(email, password).then((user) async {
-              await firestore.collection('users').doc(user.user?.uid).set({
-                'email': email,
-                'image': base64,
-                'username': username,
-                'role': student_or_teacher,
-                'uid': user.user!.uid,
-                'date': DateTime.now(),
-                'emailType': "email"
+              var imageUrl = await (await uploadTask).ref.getDownloadURL();
+              setState(() {
+                base64 = imageUrl.toString();
               });
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => MyApp()),
-                  (route) => false);
-            });
+              return authService.register(email, password).then((user) async {
+                await firestore.collection('users').doc(user.user?.uid).set({
+                  'email': email,
+                  'image': base64,
+                  'username': username,
+                  'role': student_or_teacher,
+                  'uid': user.user!.uid,
+                  'date': DateTime.now(),
+                  'emailType': "email"
+                });
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyApp()),
+                    (route) => false);
+              });
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Something went wrong. Please try again.')),
+              );
+            }
           }
         } else {
           showDialog(
@@ -206,7 +222,7 @@ class _RegisterNormalEmailState extends State<RegisterNormalEmail> {
                               image: DecorationImage(
                                   fit: BoxFit.cover,
                                   image: profileTempImage == null
-                                      ? NetworkImage(defaultPicture)
+                                      ? AssetImage(defaultPicture)
                                       : FileImage(profileTempImage!)
                                           as ImageProvider)),
                         ),
@@ -313,7 +329,8 @@ class _RegisterNormalEmailState extends State<RegisterNormalEmail> {
                                     style: BorderStyle.solid,
                                   ))),
                               autofocus: true,
-                              keyboardType: TextInputType.multiline,
+                              obscureText: true,
+                              keyboardType: TextInputType.visiblePassword,
                               validator: (value) {
                                 if (value == null)
                                   return 'Please provide a password.';
@@ -342,7 +359,8 @@ class _RegisterNormalEmailState extends State<RegisterNormalEmail> {
                                     style: BorderStyle.solid,
                                   ))),
                               autofocus: true,
-                              keyboardType: TextInputType.multiline,
+                              obscureText: true,
+                              keyboardType: TextInputType.visiblePassword,
                               validator: (value) {
                                 if (value == null)
                                   return 'Please provide a password.';
@@ -416,186 +434,5 @@ class _RegisterNormalEmailState extends State<RegisterNormalEmail> {
         ),
       ),
     );
-
-    // return Scaffold(
-    //   resizeToAvoidBottomInset: true,
-    //   appBar: AppBar(
-    //     title: Text('Registration Screen'),
-    //   ),
-    //   body: SingleChildScrollView(
-    //     child: Center(
-    //       child: Column(
-    //         children: <Widget>[
-    //           Center(
-    //             child: Stack(
-    //               children: [
-    //                 Container(
-    //                   width: 130,
-    //                   height: 130,
-    //                   decoration: BoxDecoration(
-    //                       border: Border.all(
-    //                           width: 4,
-    //                           color: Theme.of(context).scaffoldBackgroundColor),
-    //                       boxShadow: [
-    //                         BoxShadow(
-    //                             spreadRadius: 2,
-    //                             blurRadius: 10,
-    //                             color: Colors.black.withOpacity(0.1),
-    //                             offset: Offset(0, 10))
-    //                       ],
-    //                       shape: BoxShape.circle,
-    //                       image: DecorationImage(
-    //                           fit: BoxFit.cover,
-    //                           image: profileTempImage == null
-    //                               ? NetworkImage(defaultPicture)
-    //                               : FileImage(profileTempImage!)
-    //                                   as ImageProvider)),
-    //                 ),
-    //                 Positioned(
-    //                     bottom: 0,
-    //                     right: 0,
-    //                     child: Container(
-    //                       height: 45,
-    //                       width: 45,
-    //                       decoration: BoxDecoration(
-    //                         shape: BoxShape.circle,
-    //                         border: Border.all(
-    //                           width: 4,
-    //                           color: Theme.of(context).scaffoldBackgroundColor,
-    //                         ),
-    //                         color: Colors.green,
-    //                       ),
-    //                       child: IconButton(
-    //                         icon: Icon(
-    //                           Icons.edit,
-    //                           color: Colors.white,
-    //                         ),
-    //                         onPressed: () {
-    //                           setState(() {
-    //                             pickImage(1);
-    //                           });
-    //                         },
-    //                       ),
-    //                     )),
-    //               ],
-    //             ),
-    //           ),
-    //           SizedBox(
-    //             height: 5,
-    //           ),
-    //           ToggleSwitch(
-    //             minWidth: 90.0,
-    //             cornerRadius: 20.0,
-    //             activeBgColors: [
-    //               [Colors.green[800]!],
-    //               [Colors.red[800]!]
-    //             ],
-    //             activeFgColor: Colors.white,
-    //             inactiveBgColor: Colors.grey,
-    //             inactiveFgColor: Colors.white,
-    //             initialLabelIndex: student_or_teacher,
-    //             totalSwitches: 2,
-    //             labels: ['Student', 'Teacher'],
-    //             radiusStyle: true,
-    //             onToggle: (index) {
-    //               // if 0 equals to student
-    //               // if 1 equals to teacher
-    //               student_or_teacher = index!;
-    //             },
-    //           ),
-    //           Form(
-    //             key: form,
-    //             child: Column(
-    //               children: [
-    //                 Padding(
-    //                   padding: const EdgeInsets.only(
-    //                       top: 10.0, bottom: 5.0, left: 30.0, right: 30.0),
-    //                   child: TextFormField(
-    //                     decoration: InputDecoration(label: Text('Email')),
-    //                     keyboardType: TextInputType.emailAddress,
-    //                     validator: (value) {
-    //                       if (value == null) {
-    //                         return "Please input an email address";
-    //                       } else if (!value.contains('@')) {
-    //                         return "please input a valid email address";
-    //                       } else {
-    //                         return null;
-    //                       }
-    //                     },
-    //                     onSaved: (value) {
-    //                       email = value;
-    //                     },
-    //                   ),
-    //                 ),
-    //                 Padding(
-    //                   padding: const EdgeInsets.only(
-    //                       top: 10.0, bottom: 5.0, left: 30.0, right: 30.0),
-    //                   child: TextFormField(
-    //                     decoration: InputDecoration(label: Text('Password')),
-    //                     obscureText: true,
-    //                     validator: (value) {
-    //                       if (value == null)
-    //                         return 'Please provide a password.';
-    //                       else if (value.length < 6)
-    //                         return 'Password must be at least 6 characters.';
-    //                       else
-    //                         return null;
-    //                     },
-    //                     onSaved: (value) {
-    //                       password = value;
-    //                     },
-    //                   ),
-    //                 ),
-    //                 Padding(
-    //                   padding: const EdgeInsets.only(
-    //                       top: 10.0, bottom: 5.0, left: 30.0, right: 30.0),
-    //                   child: TextFormField(
-    //                     decoration:
-    //                         InputDecoration(label: Text('Confirm Password')),
-    //                     obscureText: true,
-    //                     validator: (value) {
-    //                       if (value == null)
-    //                         return 'Please provide a password.';
-    //                       else if (value.length < 6)
-    //                         return 'Password must be at least 6 characters.';
-    //                       else
-    //                         return null;
-    //                     },
-    //                     onSaved: (value) {
-    //                       confirmPassword = value;
-    //                     },
-    //                   ),
-    //                 ),
-    //                 Padding(
-    //                   padding: const EdgeInsets.only(
-    //                       top: 10.0, bottom: 5.0, left: 30.0, right: 30.0),
-    //                   child: TextFormField(
-    //                     decoration: InputDecoration(
-    //                       label: Text("username"),
-    //                     ),
-    //                     // check if inputted student username
-    //                     validator: (value) {
-    //                       if (value == null || value.length == 0) {
-    //                         return "please provide a username";
-    //                       } else {
-    //                         return null;
-    //                       }
-    //                     },
-    //                     onSaved: (value) {
-    //                       username = value;
-    //                     },
-    //                   ),
-    //                 ),
-    //                 FlatButton(
-    //                     onPressed: () => saveForm(context, student_or_teacher),
-    //                     child: Text('Register'))
-    //               ],
-    //             ),
-    //           ),
-    //         ],
-    //       ),
-    //     ),
-    //   ),
-    // );
   }
 }

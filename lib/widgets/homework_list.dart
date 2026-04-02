@@ -3,7 +3,6 @@ import 'package:chat_application/models/user_model.dart';
 import 'package:chat_application/screens/edit_homework_detail_screen.dart';
 import 'package:chat_application/services/firestore_service.dart';
 import 'package:flutter/material.dart';
-import 'package:chat_application/widgets/notification_api.dart';
 
 class HomeworkList extends StatefulWidget {
   UserModel user;
@@ -51,22 +50,10 @@ class _HomeworkListState extends State<HomeworkList> {
 
   in2Days(DateTime date, id, homework, isDone){
     var inDays2 = date.difference(DateTime.now()).inDays;
-    if (inDays2 <= 2 && isDone == false){
-      NotificationApi.showNotification(
-        title: 'Homework',
-        body: (homework +  " Due in :" +  inDays2.toString() +  " Days"),
-        payload: homework
-      );
-      if( inDays2 <= -2){
-        fsService.removeHomework(id);
-      }
-      return inDays2;
-      // add local notification
-
-    } 
-    else{
-      return inDays2;
-    }
+    // TODO: Notifications should be triggered from a background service or initState,
+    // not from build(). Removed notification call from here to prevent spam.
+    // Use NotificationApi.showNotification() from a proper lifecycle method or service.
+    return inDays2;
   }
 
   @override
@@ -115,11 +102,16 @@ class _HomeworkListState extends State<HomeworkList> {
                                 onChanged: (checkboxState) => changeToDone(
                                     snapshot.data![i].id,
                                     snapshot.data![i].isDone)),
-                            Text("Due in :" + in2Days(snapshot.data![i].dueDate, snapshot.data![i].id, snapshot.data![i].homeworkDetail, snapshot.data![i].isDone).toString() + " days, ",
-                                style: TextStyle(
-                                    color: in2Days(snapshot.data![i].dueDate, snapshot.data![i].id, snapshot.data![i].homeworkDetail, snapshot.data![i].isDone) <= 2
-                                        ? Colors.red
-                                        : Colors.black))
+                            Builder(
+                              builder: (context) {
+                                final daysUntilDue = in2Days(snapshot.data![i].dueDate, snapshot.data![i].id, snapshot.data![i].homeworkDetail, snapshot.data![i].isDone);
+                                return Text("Due in :" + daysUntilDue.toString() + " days, ",
+                                    style: TextStyle(
+                                        color: daysUntilDue <= 2
+                                            ? Colors.red
+                                            : Colors.black));
+                              },
+                            )
                           ],
                         ),
                       ),

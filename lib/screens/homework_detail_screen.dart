@@ -15,12 +15,12 @@ class HomeworkDetailListScreen extends StatefulWidget {
 }
 
 class _HomeworkDetailListScreenState extends State<HomeworkDetailListScreen> {
+  final FirestoreService _fsService = FirestoreService();
+
   @override
   Widget build(BuildContext context) {
-    FirestoreService fsService = FirestoreService();
-
     return StreamBuilder<List<HomeworkDetail>>(
-      stream: widget.user.role == 'teacher' ? fsService.getTeacherHomeworkDetail(widget.user.username) : fsService.getStudentHomeworkDetail(widget.user.username),
+      stream: widget.user.role == 'teacher' ? _fsService.getTeacherHomeworkDetail(widget.user.username) : _fsService.getStudentHomeworkDetail(widget.user.username),
       builder: (context, snapshot) {
         return snapshot.connectionState == ConnectionState.waiting ? 
         Center(child: CircularProgressIndicator()) :
@@ -44,7 +44,7 @@ class _HomeworkDetailListScreenState extends State<HomeworkDetailListScreen> {
                         SizedBox(height: 20),
                         Image.asset('images/empty.png', width: 300),
                         Text('No Homework yet, add a new one today!',
-                            style: Theme.of(context).textTheme.subtitle1),
+                            style: Theme.of(context).textTheme.titleMedium),
                       ],
                     )),
           floatingActionButton:  widget.user.role == 'teacher' ? FloatingActionButton(

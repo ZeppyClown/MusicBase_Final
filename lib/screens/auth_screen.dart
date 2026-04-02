@@ -19,38 +19,46 @@ class _AuthScreenState extends State<AuthScreen> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   Future signInFunction() async {
-    // user picked google sign in 
-    GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-    if (googleUser == null) {
-      return;
-    }
-    final googleAuth = await googleUser.authentication;
-    final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
-    UserCredential userCredential =
-        await FirebaseAuth.instance.signInWithCredential(credential);
+    try {
+      // user picked google sign in
+      GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        return;
+      }
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
 
-    DocumentSnapshot userExist =
-        await firestore.collection('users').doc(userCredential.user!.uid).get();
-    // if user exist do nothing
-    if (userExist.exists) {
+      DocumentSnapshot userExist =
+          await firestore.collection('users').doc(userCredential.user!.uid).get();
+      // if user exist do nothing
+      if (userExist.exists) {
 
-    } 
-    // if user not in system, add details for the user 
-    else {
-      await firestore.collection('users').doc(userCredential.user!.uid).set({
-        'email': userCredential.user!.email,
-        'image': userCredential.user!.photoURL,
-        'username': 'null',
-        'role': 'null',
-        'uid': userCredential.user!.uid,
-        'date': DateTime.now(),
-        'emailType': "google"
-      });
+      }
+      // if user not in system, add details for the user
+      else {
+        await firestore.collection('users').doc(userCredential.user!.uid).set({
+          'email': userCredential.user!.email,
+          'image': userCredential.user!.photoURL,
+          'username': 'null',
+          'role': 'null',
+          'uid': userCredential.user!.uid,
+          'date': DateTime.now(),
+          'emailType': "google"
+        });
+      }
+      // restart the application
+      Navigator.pushAndRemoveUntil(context,
+          MaterialPageRoute(builder: (context) => MyApp()), (route) => false);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Something went wrong. Please try again.')),
+        );
+      }
     }
-    // restart the application
-    Navigator.pushAndRemoveUntil(context,
-        MaterialPageRoute(builder: (context) => MyApp()), (route) => false);
   }
 
   @override
@@ -103,9 +111,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Image.network(
-                            'https://www.freepnglogos.com/uploads/google-logo-png/google-logo-png-webinar-optimizing-for-success-google-business-webinar-13.png',
-                            height: 36,
+                          Image.asset('assets/images/google_logo.png', height: 24, width: 24,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.account_circle, size: 24),
                           ),
                           SizedBox(
                             width: 10,
@@ -158,86 +166,5 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
       ),
     );
-
-    // return Scaffold(
-    //     body: Center(
-    //   child: Column(children: [
-    //     Expanded(
-    //       child: Container(
-    //         decoration: BoxDecoration(
-    //             image: DecorationImage(
-    //                 image: AssetImage("assets/musicBase_logo.png"))),
-    //       ),
-    //     ),
-    //     Padding(
-    //       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-    //       child: Column(
-    //         children: [
-    //           ElevatedButton(
-    //             onPressed: () {
-    //               Navigator.push(context, MaterialPageRoute(builder: (context) => LoginForm()));
-    //             },
-    //             child: Row(
-    //               mainAxisAlignment: MainAxisAlignment.center,
-    //               children: [
-    //                 Text(
-    //                   "Login",
-    //                   style: TextStyle(fontSize: 20),
-    //                 )
-    //               ],
-    //             ),
-    //             style: ButtonStyle(
-    //                 backgroundColor: MaterialStateProperty.all(Colors.blue.shade300),
-    //                 padding: MaterialStateProperty.all(
-    //                     EdgeInsets.symmetric(vertical: 12))),
-    //           ),
-    //           ElevatedButton(
-    //             onPressed: () {
-    //               Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterNormalEmail()));
-    //             },
-    //             child: Row(
-    //               mainAxisAlignment: MainAxisAlignment.center,
-    //               children: [
-    //                 Text(
-    //                   "Register",
-    //                   style: TextStyle(fontSize: 20),
-    //                 )
-    //               ],
-    //             ),
-    //             style: ButtonStyle(
-    //                 backgroundColor: MaterialStateProperty.all(Colors.blue.shade300),
-    //                 padding: MaterialStateProperty.all(
-    //                     EdgeInsets.symmetric(vertical: 12))),
-    //           ),
-    //           ElevatedButton(
-    //             onPressed: () async {
-    //               await signInFunction();
-    //             },
-    //             child: Row(
-    //               mainAxisAlignment: MainAxisAlignment.center,
-    //               children: [
-    //                 Image.network(
-    //                   'https://www.freepnglogos.com/uploads/google-logo-png/google-logo-png-webinar-optimizing-for-success-google-business-webinar-13.png',
-    //                   height: 36,
-    //                 ),
-    //                 SizedBox(
-    //                   width: 10,
-    //                 ),
-    //                 Text(
-    //                   "Sign in With Google",
-    //                   style: TextStyle(fontSize: 20),
-    //                 )
-    //               ],
-    //             ),
-    //             style: ButtonStyle(
-    //                 backgroundColor: MaterialStateProperty.all(Colors.black),
-    //                 padding: MaterialStateProperty.all(
-    //                     EdgeInsets.symmetric(vertical: 12))),
-    //           ),
-    //         ],
-    //       ),
-    //     )
-    //   ]),
-    // ));
   }
 }

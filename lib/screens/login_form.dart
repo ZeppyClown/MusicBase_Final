@@ -26,7 +26,6 @@ class _LoginFormState extends State<LoginForm> {
     if (isValid) {
       form.currentState!.save();
       AuthService authService = AuthService();
-      print(email);
       return authService.login(email, password).then((value) {
         FocusScope.of(context).unfocus();
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -40,7 +39,6 @@ class _LoginFormState extends State<LoginForm> {
       }).catchError((error) {
         FocusScope.of(context).unfocus();
         String message = error.message.toString();
-        print(message);
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(message),
@@ -130,7 +128,8 @@ class _LoginFormState extends State<LoginForm> {
                                     style: BorderStyle.solid,
                                   ))),
                               autofocus: true,
-                              keyboardType: TextInputType.multiline,
+                              obscureText: true,
+                              keyboardType: TextInputType.visiblePassword,
                               validator: (value) {
                                 if (value == null)
                                   return 'Please provide a password.';
@@ -185,52 +184,5 @@ class _LoginFormState extends State<LoginForm> {
         ),
       ),
     );
-
-    // return Scaffold(
-    //   body: Form(
-    //       key: form,
-    //       child: Column(
-    //         crossAxisAlignment: CrossAxisAlignment.stretch,
-    //         children: [
-    //           TextFormField(
-    //             decoration: InputDecoration(label: Text('Email')),
-    //             keyboardType: TextInputType.emailAddress,
-    //             validator: (value) {
-    //               if (value == null) {
-    //                 return "Please input an email address";
-    //               } else if (!value.contains('@')) {
-    //                 return "please input a valid email address";
-    //               } else {
-    //                 return null;
-    //               }
-    //             },
-    //             onSaved: (value) {
-    //               email = value;
-    //             },
-    //           ),
-    //           TextFormField(
-    //             decoration: InputDecoration(label: Text('Password')),
-    //             obscureText: true,
-    //             validator: (value) {
-    //               if (value == null)
-    //                 return 'Please provide a password.';
-    //               else if (value.length < 6)
-    //                 return 'Password must be at least 6 characters.';
-    //               else
-    //                 return null;
-    //             },
-    //             onSaved: (value) {
-    //               password = value;
-    //             },
-    //           ),
-    //           SizedBox(height: 20),
-    //           ElevatedButton(
-    //               onPressed: () {
-    //                 login();
-    //               },
-    //               child: Text('Login')),
-    //         ],
-    //       )),
-    // );
   }
 }

@@ -68,7 +68,7 @@ class _MetronomeState extends State<Metronome>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? bpm = prefs.getInt('bpm');
     if (bpm != null) {
-      print('get bpm $bpm');
+      debugPrint('get bpm $bpm');
       _setBpmHanlder(bpm);
     }
   }
@@ -77,7 +77,7 @@ class _MetronomeState extends State<Metronome>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? soundType = prefs.getInt('sound');
     if (soundType != null) {
-      print('get sound type $soundType');
+      debugPrint('get sound type $soundType');
       this.soundType = soundType;
     }
   }
@@ -96,8 +96,12 @@ class _MetronomeState extends State<Metronome>
 
   @override
   void dispose() {
-    super.dispose();
+    if (_isRunning) {
+      timer.cancel();
+    }
+    if (!kIsWeb) Wakelock.disable();
     _animationController.dispose();
+    super.dispose();
   }
 
   @override

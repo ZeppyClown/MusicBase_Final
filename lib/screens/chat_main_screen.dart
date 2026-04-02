@@ -1,12 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat_application/models/user_model.dart';
-import 'package:chat_application/screens/auth_screen.dart';
 import 'package:chat_application/screens/chat_screen.dart';
 import 'package:chat_application/screens/search_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class ChatMainScreen extends StatefulWidget {
   UserModel user;
@@ -36,8 +32,22 @@ class _ChatMainScreenState extends State<ChatMainScreen> {
               if (snapshot.hasData) {
                if (snapshot.data.docs.length < 1) {
                   return Center(
-                    // if no message show message
-                    child: Text("Start Chatting Now !"),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
+                        SizedBox(height: 16),
+                        Text(
+                          'No conversations yet',
+                          style: TextStyle(fontSize: 18, color: Colors.grey),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Search for a user to start chatting',
+                          style: TextStyle(fontSize: 14, color: Colors.grey),
+                        ),
+                      ],
+                    ),
                   );
                 }
                 return ListView.builder(

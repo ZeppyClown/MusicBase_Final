@@ -45,7 +45,7 @@ class SliderRow extends StatelessWidget {
           progress: _animationController,
         ),
         onPressed: () => toggleRunning(),
-        color: Theme.of(context).textTheme.headline3!.color,
+        color: Theme.of(context).textTheme.displaySmall!.color,
       )
     ]);
   }

@@ -27,7 +27,7 @@ class SingleMessage extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: Text(
               message,
-              style: Theme.of(context).textTheme.bodyText1!.copyWith(
+              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                   color: isMe ? Colors.white : Colors.black87),
             ),
           ),

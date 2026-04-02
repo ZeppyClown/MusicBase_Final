@@ -21,23 +21,34 @@ class _SearchScreenState extends State<SearchScreen> {
       searchResult = [];
       isLoading = true;
     });
-    await FirebaseFirestore.instance.collection('users').where("username",isEqualTo: searchController.text).get().then((value){
-       if(value.docs.length < 1){
-         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("No User Found")));
-            setState(() {
-      isLoading = false;
-    });
-    return;
-       }
-       value.docs.forEach((user) {
-          if(user.data()['email'] != widget.user.email){
-               searchResult.add(user.data());
-          }
-        });
-     setState(() {
-      isLoading = false;
-    });
-    });
+    try {
+      await FirebaseFirestore.instance.collection('users').where("username",isEqualTo: searchController.text).get().then((value){
+         if(value.docs.length < 1){
+           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("No User Found")));
+              setState(() {
+        isLoading = false;
+      });
+      return;
+         }
+         value.docs.forEach((user) {
+            if(user.data()['email'] != widget.user.email){
+                 searchResult.add(user.data());
+            }
+          });
+       setState(() {
+        isLoading = false;
+      });
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Something went wrong. Please try again.')),
+        );
+      }
+    }
   }
 
   @override

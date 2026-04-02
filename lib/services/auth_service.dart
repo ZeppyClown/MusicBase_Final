@@ -23,9 +23,10 @@ class AuthService {
 
   Future<String> getCurrentUser() async {
     User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) throw Exception('Not authenticated');
     DocumentSnapshot userData = await FirebaseFirestore.instance
           .collection('users')
-          .doc(user!.uid)
+          .doc(user.uid)
           .get();
     return UserModel.fromJson(userData).username;
   }

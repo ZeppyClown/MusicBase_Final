@@ -25,9 +25,9 @@ class _EditHomeworkDetailScreenState extends State<EditHomeworkDetailScreen> {
       FirestoreService fsService = FirestoreService();
 
       if(datePicked == null){
-        fsService.editHomework(id, homeworkDetail, studentUsername, dateNotChanged);
+        fsService.editHomework(id, (homeworkDetail as String?) ?? '', studentUsername ?? '', dateNotChanged);
       }else{
-        fsService.editHomework(id, homeworkDetail, studentUsername, datePicked);
+        fsService.editHomework(id, (homeworkDetail as String?) ?? '', studentUsername ?? '', datePicked);
       }
     }
 
@@ -78,7 +78,7 @@ class _EditHomeworkDetailScreenState extends State<EditHomeworkDetailScreen> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          color: Color(0xff757575),
+          color: Colors.white,
           child: Form(
             key: form,
             child: Container(
@@ -128,7 +128,7 @@ class _EditHomeworkDetailScreenState extends State<EditHomeworkDetailScreen> {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      primary: Colors.lightBlueAccent
+                      backgroundColor: Colors.lightBlueAccent
                     ),
                   child: Text(
                     'Edit',

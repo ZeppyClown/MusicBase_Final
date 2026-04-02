@@ -4,20 +4,18 @@ import 'package:chat_application/screens/change_password.dart';
 import 'package:chat_application/screens/profile_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
-class Setting_Screen extends StatefulWidget {
+class SettingScreen extends StatefulWidget {
   UserModel user;
-  Setting_Screen(this.user);
+  SettingScreen(this.user);
 
   @override
-  State<Setting_Screen> createState() => _Setting_ScreenState();
+  State<SettingScreen> createState() => _SettingScreenState();
 }
 
-class _Setting_ScreenState extends State<Setting_Screen> {
+class _SettingScreenState extends State<SettingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,7 +89,7 @@ class _Setting_ScreenState extends State<Setting_Screen> {
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) =>
-                              profileScreen(this.widget.user)));
+                              ProfileScreen(this.widget.user)));
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -121,7 +119,7 @@ class _Setting_ScreenState extends State<Setting_Screen> {
                         child: GestureDetector(
                           onTap: () {
                             Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => changePasswordScreen()));
+                                builder: (context) => ChangePasswordScreen()));
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -154,12 +152,20 @@ class _Setting_ScreenState extends State<Setting_Screen> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20))),
                     onPressed: () async {
-                      await GoogleSignIn().signOut();
-                      await FirebaseAuth.instance.signOut();
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => AuthScreen()),
-                          (route) => false);
+                      try {
+                        await GoogleSignIn().signOut();
+                        await FirebaseAuth.instance.signOut();
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => AuthScreen()),
+                            (route) => false);
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Something went wrong. Please try again.')),
+                          );
+                        }
+                      }
                     },
                     child: Text("SIGN OUT",
                         style: TextStyle(
@@ -176,52 +182,4 @@ class _Setting_ScreenState extends State<Setting_Screen> {
     );
   }
 
-  GestureDetector buildAccountOptionRow(BuildContext context, String title) {
-    return GestureDetector(
-      onTap: () {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text(title),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text("Option 1"),
-                    Text("Option 2"),
-                    Text("Option 3"),
-                  ],
-                ),
-                actions: [
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text("Close")),
-                ],
-              );
-            });
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[600],
-              ),
-            ),
-            Icon(
-              Icons.arrow_forward_ios,
-              color: Colors.grey,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

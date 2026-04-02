@@ -41,31 +41,47 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     bool isValid = form.currentState!.validate();
     if (isValid) {
       form.currentState!.save();
-      checker = await fsService.checkUsernameUnique(username!);
+      try {
+        checker = await fsService.checkUsernameUnique(username!);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Something went wrong. Please try again.')),
+          );
+        }
+        return;
+      }
       if (checker == true) {
-        if(profileTempImage == null){
-          await firestore.collection('users').doc(widget.user.uid).update({
-        'username' : username,
-        'role': student_or_teacher,
-      });
-        }else{
-          String? base64;
-      Reference ref =
-            FirebaseStorage.instance.ref().child(DateTime.now().toString() + '_' + basename(profileTempImage!.path));
-        UploadTask uploadTask = ref.putFile(profileTempImage!);
-
-        var imageUrl = await (await uploadTask).ref.getDownloadURL();
-        setState(() {
-          base64 = imageUrl.toString();
-        });
-        await firestore.collection('users').doc(widget.user.uid).update({
+        try {
+          if(profileTempImage == null){
+            await firestore.collection('users').doc(widget.user.uid).update({
           'username' : username,
           'role': student_or_teacher,
-          'image' : base64,
         });
+          }else{
+            String? base64;
+        Reference ref =
+              FirebaseStorage.instance.ref().child(DateTime.now().toString() + '_' + basename(profileTempImage!.path));
+          UploadTask uploadTask = ref.putFile(profileTempImage!);
+
+          var imageUrl = await (await uploadTask).ref.getDownloadURL();
+          setState(() {
+            base64 = imageUrl.toString();
+          });
+          await firestore.collection('users').doc(widget.user.uid).update({
+            'username' : username,
+            'role': student_or_teacher,
+            'image' : base64,
+          });
+          }
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyApp()), (route) => false);
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Something went wrong. Please try again.')),
+            );
+          }
         }
-        
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyApp()), (route) => false);
       } else {
         showDialog(
           context: context, 

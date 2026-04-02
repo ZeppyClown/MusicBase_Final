@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:expandable/expandable.dart';
 import 'package:intl/intl.dart';
 import 'package:full_screen_image_null_safe/full_screen_image_null_safe.dart';
-import 'package:provider/provider.dart';
 
 class LessonList extends StatefulWidget {
   UserModel user;

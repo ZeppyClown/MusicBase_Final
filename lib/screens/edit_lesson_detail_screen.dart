@@ -51,15 +51,27 @@ class _EditLessonDetailScreenState extends State<EditLessonDetailScreen> {
             .then(
               (task) => task.ref.getDownloadURL().then(
                 (lessonImage) {
-                  fsService.editLesson(id, dateCreated, lessonType,
-                      studentUsername, lessonImage, lessonDetail, widget.user.username);
+                  fsService.editLesson(
+                      id,
+                      (dateCreated ?? DateTime.now()).toIso8601String(),
+                      lessonType ?? '',
+                      studentUsername ?? '',
+                      lessonImage,
+                      lessonDetail ?? '',
+                      widget.user.username);
                   Navigator.of(context).pop();
                 },
               ),
             );
       } else {
-        fsService.editLesson(id, dateCreated, lessonType, studentUsername,
-            imageNotChanged, lessonDetail, widget.user.username);
+        fsService.editLesson(
+            id,
+            (dateCreated ?? DateTime.now()).toIso8601String(),
+            lessonType ?? '',
+            studentUsername ?? '',
+            imageNotChanged as String,
+            lessonDetail ?? '',
+            widget.user.username);
       }
 
       // Hide the keyboard
@@ -105,7 +117,6 @@ class _EditLessonDetailScreenState extends State<EditLessonDetailScreen> {
       if (value == null) return;
       setState(() {
         dateCreated = value;
-        print(dateCreated);
       });
     });
   }

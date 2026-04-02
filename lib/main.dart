@@ -12,7 +12,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 
 void main() async {
@@ -30,16 +29,7 @@ class MyApp extends StatelessWidget {
     // if user not signed in
     if (user == null) {
       return AnimatedSplashScreen(
-        splash: Column(
-          children: [
-            Image.asset('assets/musicBase_logo.png'),
-            const Text('MusicBase',
-                style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white))
-          ],
-        ),
+        splash: const _SplashContent(),
         backgroundColor: Colors.white,
         nextScreen: AuthScreen(),
         splashIconSize: 250,
@@ -48,90 +38,62 @@ class MyApp extends StatelessWidget {
       );
       // if user signed in talk details from users collection
     } else {
-      DocumentSnapshot userData = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-      UserModel userModel = UserModel.fromJson(userData);
-      // if user has not picked a role, 
-      // push register screen to the user to input details
-      if (userModel.role == "null") {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          home: AnimatedSplashScreen(
-           splash: Column(
-          children: [
-            Image.asset('assets/musicBase_logo.png'),
-            const Text('MusicBase',
-                style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white))
-          ],
-        ),
-        backgroundColor: Colors.white,
-        nextScreen: RegistrationScreen(userModel),
-        splashIconSize: 250,
-        duration: 4000,
-        splashTransition: SplashTransition.slideTransition,
-        
-      ),
-          routes: {
-            EditLessonDetailScreen.routeName: (_) {
-              return EditLessonDetailScreen(userModel);
-            },
-            AddLessonDetailScreen.routeName: (_) {
-              return AddLessonDetailScreen(userModel);
-            },
-            AddHomeworkDetailScreen.routeName: (_) {
-              return AddHomeworkDetailScreen(userModel);
-            },
-            EditHomeworkDetailScreen.routeName: (_) {
-              return EditHomeworkDetailScreen();
-            }
-          },
-          
-        );
-        // enter user to application
-      } else {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          home: AnimatedSplashScreen(
-           splash: Column(
-          children: [
-            Image.asset('assets/musicBase_logo.png'),
-            const Text('MusicBase',
-                style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white))
-          ],
-        ),
-        backgroundColor: Colors.white,
-        nextScreen: Navigation(userModel),
-        splashIconSize: 250,
-        duration: 4000,
-        splashTransition: SplashTransition.slideTransition,
-        
-      ),
-          routes: {
-            EditLessonDetailScreen.routeName: (_) {
-              return EditLessonDetailScreen(userModel);
-            },
-            AddLessonDetailScreen.routeName: (_) {
-              return AddLessonDetailScreen(userModel);
-            },
-            AddHomeworkDetailScreen.routeName: (_) {
-              return AddHomeworkDetailScreen(userModel);
-            },
-            EditHomeworkDetailScreen.routeName: (_) {
-              return EditHomeworkDetailScreen();
-            }
-          },
-          
+      try {
+        DocumentSnapshot userData = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        UserModel userModel = UserModel.fromJson(userData);
+        // if user has not picked a role,
+        // push register screen to the user to input details
+        if (userModel.role == "null") {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: AnimatedSplashScreen(
+              splash: const _SplashContent(),
+              backgroundColor: Colors.white,
+              nextScreen: RegistrationScreen(userModel),
+              splashIconSize: 250,
+              duration: 4000,
+              splashTransition: SplashTransition.slideTransition,
+            ),
+            routes: _buildRoutes(userModel),
+          );
+          // enter user to application
+        } else {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: AnimatedSplashScreen(
+              splash: const _SplashContent(),
+              backgroundColor: Colors.white,
+              nextScreen: Navigation(userModel),
+              splashIconSize: 250,
+              duration: 4000,
+              splashTransition: SplashTransition.slideTransition,
+            ),
+            routes: _buildRoutes(userModel),
+          );
+        }
+      } catch (e) {
+        return AnimatedSplashScreen(
+          splash: const _SplashContent(),
+          backgroundColor: Colors.white,
+          nextScreen: AuthScreen(),
+          splashIconSize: 250,
+          duration: 2000,
+          splashTransition: SplashTransition.slideTransition,
         );
       }
     }
+  }
+
+  Map<String, WidgetBuilder> _buildRoutes(UserModel userModel) {
+    return {
+      EditLessonDetailScreen.routeName: (_) => EditLessonDetailScreen(userModel),
+      AddLessonDetailScreen.routeName: (_) => AddLessonDetailScreen(userModel),
+      AddHomeworkDetailScreen.routeName: (_) => AddHomeworkDetailScreen(userModel),
+      EditHomeworkDetailScreen.routeName: (_) => EditHomeworkDetailScreen(),
+    };
   }
 
   @override
@@ -139,7 +101,32 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'Music Base',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: Colors.teal,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.teal,
+            secondary: Colors.tealAccent,
+          ),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.teal,
+            foregroundColor: Colors.white,
+            elevation: 2,
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.teal,
+              foregroundColor: Colors.white,
+            ),
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.teal, width: 2),
+            ),
+          ),
+          useMaterial3: false,
         ),
         home: FutureBuilder(
             future: userSignedIn(),
@@ -153,5 +140,26 @@ class MyApp extends StatelessWidget {
                 ),
               );
             }));
+  }
+}
+
+class _SplashContent extends StatelessWidget {
+  const _SplashContent();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Image.asset('assets/musicBase_logo.png'),
+        const Text(
+          'MusicBase',
+          style: TextStyle(
+            fontSize: 40,
+            fontWeight: FontWeight.bold,
+            color: Colors.teal,
+          ),
+        ),
+      ],
+    );
   }
 }

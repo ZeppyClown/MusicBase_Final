@@ -1,15 +1,14 @@
-import 'package:chat_application/screens/login_form.dart';
 import 'package:chat_application/services/auth_service.dart';
 import 'package:chat_application/utils/kConstants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class changePasswordScreen extends StatefulWidget {
+class ChangePasswordScreen extends StatefulWidget {
   @override
-  State<changePasswordScreen> createState() => _changePasswordScreenState();
+  State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
 }
 
-class _changePasswordScreenState extends State<changePasswordScreen> {
+class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   String? currentPassword;
   String? newPassword;
   String? cfmnewPassword;
@@ -114,7 +113,8 @@ class _changePasswordScreenState extends State<changePasswordScreen> {
                                     style: BorderStyle.solid,
                                   ))),
                               autofocus: true,
-                              keyboardType: TextInputType.multiline,
+                              obscureText: true,
+                              keyboardType: TextInputType.visiblePassword,
                               validator: (value) {
                                 if (value == null) {
                                   return "Please input your current password";
@@ -142,7 +142,8 @@ class _changePasswordScreenState extends State<changePasswordScreen> {
                                     style: BorderStyle.solid,
                                   ))),
                               autofocus: true,
-                              keyboardType: TextInputType.multiline,
+                              obscureText: true,
+                              keyboardType: TextInputType.visiblePassword,
                               validator: (value) {
                                 if (value == null) {
                                   return "Please input your new password";
@@ -170,7 +171,8 @@ class _changePasswordScreenState extends State<changePasswordScreen> {
                                     style: BorderStyle.solid,
                                   ))),
                               autofocus: true,
-                              keyboardType: TextInputType.multiline,
+                              obscureText: true,
+                              keyboardType: TextInputType.visiblePassword,
                               validator: (value) {
                                 if (value == null) {
                                   return "Please confirm you new password";

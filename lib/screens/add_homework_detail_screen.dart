@@ -19,7 +19,7 @@ class _AddHomeworkDetailScreenState extends State<AddHomeworkDetailScreen> {
   String? studentUsername;
   DateTime? datePicked = DateTime.now();
 
-  addHomework(context) {
+  addHomework(context) async {
     bool isValid = form.currentState!.validate();
 
     if (isValid) {
@@ -27,20 +27,33 @@ class _AddHomeworkDetailScreenState extends State<AddHomeworkDetailScreen> {
 
       FirestoreService fsService = FirestoreService();
 
-      fsService.addHomeworkScreen(
-          homeworkDetail, studentUsername, datePicked, widget.user.username);
-      // Hide the keyboard
-      FocusScope.of(context).unfocus();
+      try {
+        await fsService.addHomeworkScreen(
+            (homeworkDetail as String?) ?? '',
+            studentUsername ?? '',
+            datePicked,
+            widget.user.username);
+        // Hide the keyboard
+        FocusScope.of(context).unfocus();
 
-      // Resets the form
-      form.currentState!.reset();
-      datePicked = null;
+        // Resets the form
+        form.currentState!.reset();
+        datePicked = null;
 
-      // Shows a SnackBar
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Homework added successfully!'),
-      ));
-      Navigator.of(context).pop();
+        // Shows a SnackBar
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Homework added successfully!'),
+          ));
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Something went wrong. Please try again.')),
+          );
+        }
+      }
     }
   }
 
@@ -68,7 +81,7 @@ class _AddHomeworkDetailScreenState extends State<AddHomeworkDetailScreen> {
           title: Text('Add Homework'),
         ),
         body: Container(
-          color: Color(0xff757575),
+          color: Colors.white,
           child: Form(
             key: form,
             child: Container(
@@ -124,7 +137,7 @@ class _AddHomeworkDetailScreenState extends State<AddHomeworkDetailScreen> {
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.lightBlueAccent
+                      backgroundColor: Colors.lightBlueAccent
                     ),
                     child: Text(
                       'Add',

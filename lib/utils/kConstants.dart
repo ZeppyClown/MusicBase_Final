@@ -8,35 +8,47 @@ class AppColors {
   static const kDarkblack = Color(0xFF8B959A);
 }
 
-Widget InkwellButtons({
-  required Image image,
-}) {
-  return Expanded(
-    child: Container(
-      width: 170,
-      height: 60,
-      child: image,
-    ),
-  );
+class InkwellButtons extends StatelessWidget {
+  final Image image;
+  const InkwellButtons({Key? key, required this.image}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        width: 170,
+        height: 60,
+        child: image,
+      ),
+    );
+  }
 }
 
-Widget SignUpContainer({required String st}) {
-  return Container(
-    width: double.infinity,
-    height: 60,
-    decoration: BoxDecoration(
-      color: AppColors.kBlueColor,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Center(
-      child: Text( st,
+class SignUpContainer extends StatelessWidget {
+  final String st;
+  const SignUpContainer({Key? key, required this.st}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 60,
+      decoration: BoxDecoration(
+        color: AppColors.kBlueColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Center(
+        child: Text(
+          st,
           style: const TextStyle(
             color: AppColors.kwhiteColor,
             fontWeight: FontWeight.normal,
             fontSize: 14,
-          )),
-    ),
-  );
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 TextSpan RichTextSpan({required String one, required String two}) {
@@ -53,23 +65,29 @@ TextSpan RichTextSpan({required String one, required String two}) {
   ]);
 }
 
-Widget CustomTextField({required String Lone, required String Htwo}) {
-  return TextField(
-    decoration: InputDecoration(
-        labelText: Lone,
-        hintText: Htwo,
-        hintStyle: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 17,
-        ),
-        border: const OutlineInputBorder(
-            borderSide: BorderSide(
-          width: 5,
-          color: AppColors.kDarkblack,
-          style: BorderStyle.solid,
-        ))),
-    autofocus: true,
-    keyboardType: TextInputType.multiline,
-  );
-}
+class CustomTextField extends StatelessWidget {
+  final String Lone;
+  final String Htwo;
+  const CustomTextField({Key? key, required this.Lone, required this.Htwo}) : super(key: key);
 
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      decoration: InputDecoration(
+          labelText: Lone,
+          hintText: Htwo,
+          hintStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 17,
+          ),
+          border: const OutlineInputBorder(
+              borderSide: BorderSide(
+            width: 5,
+            color: AppColors.kDarkblack,
+            style: BorderStyle.solid,
+          ))),
+      autofocus: true,
+      keyboardType: TextInputType.multiline,
+    );
+  }
+}

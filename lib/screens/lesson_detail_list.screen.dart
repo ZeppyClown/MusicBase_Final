@@ -14,12 +14,13 @@ class LessonDetailListScreen extends StatefulWidget {
 }
 
 class _LessonDetailListScreenState extends State<LessonDetailListScreen> {
+  final FirestoreService _fsService = FirestoreService();
+
   @override
   Widget build(BuildContext context) {
-    FirestoreService fsService = FirestoreService();
     return StreamBuilder<List<LessonDetail>>(
       // check if student or teacher
-        stream: widget.user.role == 'teacher' ? fsService.getTeacherLessonDetail(widget.user.username) : fsService.getStudentLessonDetail(widget.user.username),
+        stream: widget.user.role == 'teacher' ? _fsService.getTeacherLessonDetail(widget.user.username) : _fsService.getStudentLessonDetail(widget.user.username),
         builder: (context, snapshot) {
           return snapshot.connectionState == ConnectionState.waiting
               ? Center(child: CircularProgressIndicator())
@@ -45,7 +46,7 @@ class _LessonDetailListScreenState extends State<LessonDetailListScreen> {
                                 Image.asset('images/empty.png', width: 300),
                                 Text('No lessons yet, add a new one today!',
                                     style:
-                                        Theme.of(context).textTheme.subtitle1),
+                                        Theme.of(context).textTheme.titleMedium),
                               ],
                             )),
                             // only available for teacher

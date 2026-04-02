@@ -16,20 +16,26 @@ class Navigation extends StatefulWidget {
 }
 
 class _NavigationState extends State<Navigation> {
-
   int _currentIndex = 0;
+  late final List<Widget> _pages;
+
   @override
-  Widget build(BuildContext context) {
-    final pages = [
+  void initState() {
+    super.initState();
+    _pages = [
       LessonDetailListScreen(widget.user),
       ChatMainScreen(widget.user),
       HomeworkDetailListScreen(widget.user),
       Metronome(),
-      Setting_Screen(widget.user)
+      SettingScreen(widget.user),
     ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: pages[_currentIndex],
+        child: _pages[_currentIndex],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,

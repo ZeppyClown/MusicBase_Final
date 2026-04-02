@@ -55,31 +55,46 @@ class _AddLessonDetailScreenState extends State<AddLessonDetailScreen> {
       }
       // store photo the user inputted as base 64 string
       else {
-        String? base64;
-        Reference ref = FirebaseStorage.instance.ref().child(
-            DateTime.now().toString() + '_' + basename(lessonPhoto!.path));
-        UploadTask uploadTask = ref.putFile(lessonPhoto!);
+        try {
+          String? base64;
+          Reference ref = FirebaseStorage.instance.ref().child(
+              DateTime.now().toString() + '_' + basename(lessonPhoto!.path));
+          UploadTask uploadTask = ref.putFile(lessonPhoto!);
 
-        var imageUrl = await (await uploadTask).ref.getDownloadURL();
-        setState(() {
-          base64 = imageUrl.toString();
-        });
+          var imageUrl = await (await uploadTask).ref.getDownloadURL();
+          setState(() {
+            base64 = imageUrl.toString();
+          });
 
-        fsService.addLessonScreen(lessonType, lessonDetail, base64, dateCreated,
-            studentUsername, widget.user.username);
+          fsService.addLessonScreen(
+              lessonType ?? '',
+              lessonDetail ?? '',
+              base64 ?? '',
+              (dateCreated ?? DateTime.now()).toIso8601String(),
+              studentUsername ?? '',
+              widget.user.username);
 
-        // Hide the keyboard
-        FocusScope.of(context).unfocus();
+          // Hide the keyboard
+          FocusScope.of(context).unfocus();
 
-        // Resets the form
-        form.currentState!.reset();
-        dateCreated = null;
+          // Resets the form
+          form.currentState!.reset();
+          dateCreated = null;
 
-        // Shows a SnackBar
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Lesson detail added successfully!'),
-        ));
-        Navigator.of(context).pop();
+          // Shows a SnackBar
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('Lesson detail added successfully!'),
+            ));
+            Navigator.of(context).pop();
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Something went wrong. Please try again.')),
+            );
+          }
+        }
       }
     }
   }
